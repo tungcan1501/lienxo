@@ -1,0 +1,94 @@
+<?php
+
+require_once(drupal_get_path("module","mycustom")."/simple_html_dom.php");
+//""
+/*
+ * Implement hook_init
+ */
+/*
+ * Implement hook_init
+ */
+function mycustom_init() 
+{
+    
+    drupal_add_js(drupal_get_path("module", "mycustom") . "/js/jquery.mobilemenu.js");
+    drupal_add_js(drupal_get_path("module", "mycustom") . "/js/mycustom.js");
+    drupal_add_css(drupal_get_path("module","mycustom")."/mycustom.css");
+}
+
+/*
+ * Implement hook_menu
+ */
+function mycustom_menu() {
+  
+  $items['getlx/%'] = array(
+    'title' => 'Thien Dia',
+    'page callback' => 'mycustom_getlx_links',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['manga/%'] = array(
+    'title' => 'test',
+    'page arguments' => array(1),
+    'page callback' => 'mycustom_hentai_page',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
+
+
+function mycustom_getlx_links($s) {
+  if(!isset($_GET['t']) && isset($_GET['f'])) {
+      
+    //dsm($_GET);
+    $f = $_GET['f'];
+    $g = isset($_GET['page']) ? $_GET['page'] : '';
+    if($g=='') {
+      $link = "http://thiendia.com/diendan/forumdisplay.php?f=$f";
+    } else {
+      $link = "http://thiendia.com/diendan/forumdisplay.php?f=$f&order=desc&page=$g";
+    }
+    //return $link;
+    $html = file_get_html($link);
+    //dsm($link);
+    $output = $html->find("#threadslist", 0);
+    
+    $pager = $html->find('.pagenav', 0);
+    //$pager = str_replace("forumdisplay.php?f=$f&order=desc&page=", '', $pager->outertext);
+  
+    //dsm($output);
+    return ($output->outertext . $pager);
+  }
+  else if(isset($_GET['t'])) {
+    $t = $_GET['t'];
+    $link = 'http://thiendia.com/diendan/showthread.php?t='.$t.'&postcount=1';
+    //return $link;
+    $html = file_get_html($link);
+  
+    //echo $html;
+    //dsm($html);
+    $id = "#post_message_".$t;
+    //dsm($id);
+    $output = $html->find("#posts", 0)->find('table', 0)->find('.alt1', 0);
+    //dsm($output);
+    return "<div id='lxthread'>" . $output->outertext . "</div>";
+  }
+}
+
+function get_link($text, $i) {
+  if($i < 10) {
+    $i = '00'.$i;
+  } else {
+    $i = '0'.$i;
+  }
+  return "http://t.fakku.net/images/manga/i/$text/images/$i.jpg";
+}
+
+function mycustom_hentai_page($s) {
+}
+
+
+
